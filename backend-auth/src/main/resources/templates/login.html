@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            height: 100vh;
+        }
+
+        .header {
+            background: #f3f3f3;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header .left,
+        .header .right {
+            display: flex;
+            align-items: center;
+        }
+
+        .header .left img,
+        .header .right img {
+            height: 24px;
+            margin-right: 10px;
+        }
+
+        .header .left span,
+        .header .right span {
+            font-size: 18px;
+            color: #0a2b51;
+            font-weight: bold;
+        }
+
+        .container {
+            display: flex;
+            height: calc(100vh - 80px);
+        }
+
+        .left {
+            flex: 1;
+            background: #eef2fb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .left img {
+            width: 80%;
+            max-width: 400px;
+        }
+
+        .right {
+            flex: 1;
+            padding: 80px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .right h1,
+        .right p,
+        .signup {
+            text-align: center;
+            width: 100%;
+            max-width: 350px;
+        }
+
+        form {
+            width: 100%;
+            max-width: 350px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: none;
+            border-bottom: 2px solid #ccc;
+            outline: none;
+            font-size: 16px;
+        }
+
+        .form-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: black;
+            color: white;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .signup {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .signup a {
+            text-decoration: none;
+            color: black;
+            font-weight: bold;
+        }
+
+        .error-msg {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+
+    <div class="right">
+        <img th:src="@{/images/Frame10.png}" alt="star">
+        <span>Asite Product System</span>
+    </div>
+</div>
+
+<div class="container">
+    <div class="left">
+        <img th:src="@{/images/image10.png}" alt="login image"/>
+    </div>
+    <div class="right">
+        <h1>Welcome back</h1>
+        <p>Welcome back! Please enter your details.</p>
+
+        <div th:if="${param.error}" class="error-msg">
+            Tên đăng nhập hoặc mật khẩu không đúng.
+        </div>
+
+        <form th:action="@{/login}" method="post">
+            <input type="text" id="username" name="username" placeholder="Username" required/>
+            <input type="password" id="password" name="password" placeholder="Password" required/>
+
+            <div class="form-footer">
+                <label><input type="checkbox"/> Terms & Conditions</label>
+                <a href="#" style="text-decoration:none; color:#555;">Forgot Password</a>
+            </div>
+
+            <button type="submit">Log in</button>
+        </form>
+
+        <div class="signup">
+            Don't have an account? <a th:href="@{/register}">Sign up for free</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

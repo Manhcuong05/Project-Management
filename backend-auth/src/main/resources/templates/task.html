@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Project Tasks | Project Management</title>
+    <meta charset="UTF-8"/>
+    <style>
+        body {
+            background: #f7faff;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+        }
+
+        .header {
+            width: 100vw;
+            height: 70px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 10px #0001;
+            padding: 0 36px 0 30px;
+            position: fixed;
+            left: 0; top: 0; right: 0;
+            z-index: 2;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-header {
+            height: 38px;
+            width: 38px;
+            object-fit: contain;
+        }
+
+        .logo-text {
+            font-size: 26px;
+            font-weight: bold;
+            color: #175fa2;
+            letter-spacing: 0.5px;
+        }
+
+        .search-box {
+            margin-left: 60px;
+        }
+
+        .search-box input {
+            padding: 8px 14px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            min-width: 260px;
+            font-size: 15px;
+        }
+
+        .user-info {
+            margin-left: auto;
+            display: flex; align-items: center; gap: 14px;
+        }
+
+        .user-info img {
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+        }
+
+        .sidebar {
+            width: 220px;
+            background: #fff;
+            min-height: calc(100vh - 70px);
+            position: fixed;
+            left: 0; top: 70px; bottom: 0;
+            box-shadow: 2px 0 16px #0001;
+            padding-top: 32px;
+            z-index: 1;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0 0 0 18px;
+        }
+
+        .sidebar ul li {
+            margin-bottom: 18px;
+        }
+
+        .sidebar ul li a {
+            text-decoration: none;
+            color: #333;
+            font-size: 16px;
+            padding: 8px 18px;
+            display: block;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .sidebar ul li a.active, .sidebar ul li a:hover {
+            background: #e3edfa;
+            color: #1565c0;
+        }
+
+        .main {
+            margin-left: 220px;
+            margin-top: 70px;
+            padding: 36px 38px;
+        }
+
+        .project-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .project-info h2 {
+            font-size: 26px;
+            font-weight: bold;
+            color: #18376d;
+        }
+
+        .project-info .assign-task-btn {
+            padding: 12px 24px;
+            background: #008cba;
+            color: white;
+            text-decoration: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+
+        .project-description-box {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 40px;
+        }
+
+        .project-description-box p {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .project-timeline {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .project-timeline strong {
+            color: #175fa2;
+        }
+
+        .tasks-list {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e1e1e1;
+            padding: 12px 0;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-item .task-details {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .task-item .task-time {
+            font-size: 14px;
+            color: #888;
+        }
+
+        .task-item .task-description {
+            font-size: 14px;
+            color: #555;
+            margin-top: 12px;
+            line-height: 1.5;
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        .task-item .task-time-spent {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #4caf50;
+            margin-left: 20px;
+        }
+
+        .task-item .task-time-spent span {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .task-item .status-buttons {
+            display: flex;
+            gap: 8px;
+            margin-left: 20px;
+        }
+
+        .task-item .status-buttons button {
+            padding: 8px 18px;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .task-item .status-buttons .complete-btn {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .task-item .status-buttons .cancel-btn {
+            background-color: #f44336;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+</div>
+
+<div class="sidebar">
+    <ul>
+        <li><a th:href="@{/dashboard}"><i></i> Dashboard</a></li>
+        <li><a th:href="@{/projects}"  class="active"><i></i> Projects</a></li>
+        <li><a th:href="@{/tasks}"><i></i> Tasks</a></li>
+        <li><a th:href="@{/worklogs}"><i></i> Work Logs</a></li>
+        <li><a th:href="@{/list_employee}"><i></i> Employees</a></li>
+        <li><a th:href="@{/profile}"><i></i> Log Out</a></li>
+    </ul>
+</div>
+
+<div class="main">
+    <div class="project-info">
+        <h2 th:text="'Projects / ' + ${project.name}">Projects / Addodle</h2>
+        <a class="assign-task-btn" th:href="@{/projects/{projectId}/tasks/create(projectId=${project.id})}">Assign Task</a>
+    </div>
+
+    <div class="project-description-box">
+        <p th:text="${project.description}">Project description here.</p>
+        <div class="project-timeline">
+            <strong>Start Date: </strong><span th:text="${#temporals.format(project.startDate, 'dd-MM-yyyy')}"></span><br>
+            <strong>End Date: </strong><span th:text="${#temporals.format(project.endDate, 'dd-MM-yyyy')}"></span>
+        </div>
+    </div>
+
+    <div class="tasks-list">
+        <div th:if="${#lists.isEmpty(tasks)}">
+            <p>No tasks found for this project.</p>
+        </div>
+
+        <div class="task-item" th:each="task : ${tasks}">
+            <div class="task-details">
+                <div>
+                    <strong th:text="${task.name}">Task title</strong><br>
+                    <span style="color:#666;font-size:13px;" th:text="'Created by: ' + ${task.createdBy}">Created by: User</span><br>
+                    <span style="color:#007a5a;font-size:13px;font-weight:500;"
+                          th:text="'Assigned to: ' + (${task.assignee} ? ${task.assignee.firstName} + ' ' + ${task.assignee.lastName} : 'Chưa gán')">
+                          Assigned to: Assignee Name
+                    </span><br>
+
+                    <span class="task-time" th:text="${#dates.format(task.startDate, 'dd-MM-yyyy')} + ' - ' + ${#dates.format(task.endDate, 'dd-MM-yyyy')}">
+                        Date range
+                    </span>
+                    <div class="task-description" th:text="${task.description}">
+                        Task description.
+                    </div>
+                </div>
+            </div>
+            <div class="task-time-spent">
+                <span th:text="${task.status}">Pending</span>
+            </div>
+            <div class="status-buttons">
+                <form th:action="@{/tasks/{id}/complete(id=${task.id})}" method="post" style="display:inline;">
+                    <input type="hidden" name="projectId" th:value="${project.id}" />
+                    <button type="submit" class="complete-btn">Complete</button>
+                </form>
+                <form th:action="@{/tasks/{id}/delete(id=${task.id})}" method="post" style="display:inline;">
+                    <input type="hidden" name="projectId" th:value="${project.id}" />
+                    <button type="submit" class="cancel-btn" onclick="return confirm('Bạn có chắc chắn muốn xóa task này?');">Cancel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

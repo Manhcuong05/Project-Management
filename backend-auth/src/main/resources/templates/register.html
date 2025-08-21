@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            height: 100vh;
+        }
+
+        .header {
+            background: #f3f3f3;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header .left,
+        .header .right {
+            display: flex;
+            align-items: center;
+        }
+
+        .header .left img,
+        .header .right img {
+            height: 24px;
+            margin-right: 10px;
+        }
+
+        .header .left span,
+        .header .right span {
+            font-size: 18px;
+            color: #0a2b51;
+            font-weight: bold;
+        }
+
+        .container {
+            display: flex;
+            height: calc(100vh - 80px);
+        }
+
+        .left {
+            flex: 1;
+            background: #eef2fb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .left img {
+            width: 80%;
+            max-width: 400px;
+        }
+
+        .right {
+            flex: 1;
+            padding: 80px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .right h1,
+        .right p,
+        .signup {
+            text-align: center;
+            width: 100%;
+            max-width: 350px;
+        }
+
+        form {
+            width: 100%;
+            max-width: 350px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: none;
+            border-bottom: 2px solid #ccc;
+            outline: none;
+            font-size: 16px;
+        }
+
+        .form-footer {
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: black;
+            color: white;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .signup {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .signup a {
+            text-decoration: none;
+            color: black;
+            font-weight: bold;
+        }
+
+
+        .error-msg {
+            color: red;
+            font-size: 13px;
+            margin-top: -15px;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+
+    <div class="right">
+        <img th:src="@{/images/Frame10.png}" alt="star">
+        <span>Asite Product System</span>
+    </div>
+</div>
+
+<div class="container">
+    <div class="left">
+        <img th:src="@{/images/image10.png}" alt="register image"/>
+    </div>
+    <div class="right">
+        <h1>Create an Account</h1>
+        <p>Sign up to get started with AProjectO.</p>
+
+        <form th:action="@{/register}" th:object="${userDto}" method="post">
+            <div th:if="${#fields.hasGlobalErrors()}" class="error-msg">
+                <p th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
+            </div>
+
+            <div>
+                <input type="text" th:field="*{username}" placeholder="Username" required/>
+                <p th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="error-msg"></p>
+            </div>
+
+            <div>
+                <input type="email" th:field="*{email}" placeholder="Email" required/>
+                <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="error-msg"></p>
+            </div>
+
+            <div>
+                <input type="password" th:field="*{password}" placeholder="Password" required/>
+                <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="error-msg"></p>
+            </div>
+
+            <div>
+                <input type="password" th:field="*{confirmPassword}" placeholder="Confirm Password" required/>
+                <p th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}" class="error-msg"></p>
+            </div>
+
+            <div class="form-footer">
+                <label><input type="checkbox" required/> I agree to the Terms & Conditions</label>
+            </div>
+
+            <button type="submit">Sign Up</button>
+        </form>
+
+        <div class="signup">
+            Already have an account? <a th:href="@{/login}">Log in</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

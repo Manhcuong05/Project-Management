@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard | Project Management</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body { background: #f7faff; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; }
+        .header {
+            width: 100vw; height: 70px; background: #fff; display: flex; align-items: center;
+            box-shadow: 0 2px 10px #0001; padding: 0 36px 0 30px; position: fixed;
+            left: 0; top: 0; right: 0; z-index: 2;
+        }
+        .header-left { display: flex; align-items: center; gap: 10px; }
+        .logo-header { height: 38px; width: 38px; object-fit: contain; }
+        .logo-text { font-size: 26px; font-weight: bold; color: #175fa2; letter-spacing: 0.5px; }
+        .search-box { margin-left: 60px; }
+        .search-box input { padding: 8px 14px; border-radius: 6px; border: 1px solid #ccc; min-width: 260px; font-size: 15px; }
+        .user-info { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+        .user-info img { border-radius: 50%; width: 36px; height: 36px; }
+        .sidebar {
+            width: 220px; background: #fff; min-height: 100vh; position: fixed;
+            top: 70px; left: 0; box-shadow: 2px 0 16px #0001; padding-top: 32px; z-index: 1;
+        }
+        .sidebar ul { list-style: none; padding: 0 0 0 18px; }
+        .sidebar ul li { margin-bottom: 18px; }
+        .sidebar ul li a {
+            text-decoration: none; color: #333; font-size: 16px; padding: 8px 18px;
+            display: block; border-radius: 6px; transition: background 0.2s;
+        }
+        .sidebar ul li a.active, .sidebar ul li a:hover { background: #e3edfa; color: #1565c0; }
+        .main { margin-left: 220px; margin-top: 70px; padding: 36px 38px; }
+        .dashboard-title { font-size: 2rem; font-weight: bold; color: #1d2746; margin-bottom: 32px; }
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 260px 260px; gap: 28px; }
+        .dashboard-card {
+            background: #fff; border-radius: 18px; box-shadow: 0 4px 20px #0001;
+            padding: 24px 26px 16px 26px; display: flex; flex-direction: column;
+            position: relative; height: 100%; cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 6px 40px rgba(0, 0, 0, 0.2);
+            background-color: #f0f8ff;
+        }
+        .section-title { font-size: 20px; font-weight: bold; color: #18376d; margin-bottom: 20px; }
+        .section-badge {
+            position: absolute; top: 26px; right: 36px; background: #e3f2fd;
+            color: #1565c0; border-radius: 8px; padding: 4px 16px;
+            font-size: 14px; font-weight: bold;
+        }
+        /* ... Các style khác ... */
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <ul>
+        <li><a th:href="@{/projects}"><i></i> Projects</a></li>
+        <li><a th:href="@{/tasks}"><i></i> Tasks</a></li>
+        <li><a th:href="@{/worklogs}"><i></i> Work Logs</a></li>
+        <li><a th:href="@{/list_employee}"><i></i> Employees</a></li>
+        <li><a th:href="@{/profile}"><i></i> Log Out</a></li>
+    </ul>
+</div>
+
+<div class="header">
+    <div class="header-left">
+        <img th:src="@{images/z6890700874182_897918e335be87fe6f108c6028a5f840.jpg}" alt="Logo" class="logo-header"/>
+        <span class="logo-text">AProjectO</span>
+    </div>
+    <div class="search-box">
+        <input type="text" placeholder="Search for anything..."/>
+    </div>
+    <div class="user-info" th:if="${user != null}">
+        <span style="font-weight: 500;" th:text="${user.username}">Anima Agrawal</span>
+        <span style="font-size: 13px; color: #777;">Online</span>
+        <img th:src="@{/static/images/default-avatar.png}" alt="avatar"/>
+    </div>
+</div>
+
+<div class="main">
+    <div class="dashboard-title">Dashboard</div>
+
+    <div class="dashboard-grid">
+        <a th:href="@{/projects}" style="text-decoration: none; color: inherit;">
+            <div class="dashboard-card" id="projectsCard">
+                <div class="section-title">Projects</div>
+                <canvas id="projectsChart"></canvas>
+                <span class="section-badge" th:text="${projectsCount} + ' projects'">52 files</span>
+            </div>
+        </a>
+        <div class="dashboard-card">
+            <div class="section-title">Tasks</div>
+            <canvas id="tasksChart"></canvas>
+            <span class="section-badge">This Week</span>
+        </div>
+        <div class="dashboard-card">
+            <div class="section-title">Work Log</div>
+            <canvas id="workLogChart"></canvas>
+            <span class="section-badge">This Week</span>
+        </div>
+        <div class="dashboard-card">
+            <div class="section-title">Performance</div>
+            <canvas id="performanceChart"></canvas>
+            <span class="section-badge">This Week</span>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    // Đọc chuỗi JSON mà controller đã "tiêm" vào trang
+    const chartDataJson = /*[[${chartDataJson}]]*/ '{}';
+    const data = JSON.parse(chartDataJson);
+
+    // Khi trang đã tải xong, gọi hàm vẽ biểu đồ
+    document.addEventListener('DOMContentLoaded', function() {
+        renderCharts(data);
+    });
+
+    // Hàm vẽ biểu đồ (giữ nguyên không đổi)
+    function renderCharts(data) {
+        // Biểu đồ Projects (Pie chart)
+        const projectsCtx = document.getElementById('projectsChart').getContext('2d');
+        new Chart(projectsCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Completed', 'In Progress', 'Pending'],
+                datasets: [{
+                    data: data.projectsStatus,
+                    backgroundColor: ['#4caf50', '#2196f3', '#f44336'],
+                }]
+            }
+        });
+
+        // Biểu đồ Tasks (Pie chart)
+        const tasksCtx = document.getElementById('tasksChart').getContext('2d');
+        new Chart(tasksCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Completed', 'On Hold', 'In Progress', 'Pending'],
+                datasets: [{
+                    data: data.tasksStatus,
+                    backgroundColor: ['#4caf50', '#9c27b0', '#2196f3', '#f44336'],
+                }]
+            }
+        });
+
+        // Biểu đồ Work Log
+        const workLogCtx = document.getElementById('workLogChart').getContext('2d');
+        new Chart(workLogCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Product 1', 'Product 2', 'Product 3', 'Product 4', 'Product 5'],
+                datasets: [{
+                    data: data.workLogStatus,
+                    backgroundColor: ['#f44336', '#2196f3', '#4caf50', '#ff9800', '#9c27b0'],
+                }]
+            }
+        });
+
+        // Biểu đồ Performance (Line chart)
+        const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+        new Chart(performanceCtx, {
+            type: 'line',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                datasets: [{
+                    label: 'Performance',
+                    data: data.performanceStatus,
+                    fill: false,
+                    borderColor: '#1976d2',
+                    tension: 0.1,
+                }]
+            }
+        });
+    }
+
+    /*]]>*/
+</script>
+
+</body>
+</html>

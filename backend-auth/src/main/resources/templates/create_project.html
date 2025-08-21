@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Project | Project Management</title>
+    <style>
+        body { background: #f7faff; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; }
+        .header {
+            width: 100vw; height: 70px; background: #fff; display: flex; align-items: center;
+            box-shadow: 0 2px 10px #0001; padding: 0 36px 0 30px; position: fixed;
+            left: 0; top: 0; right: 0; z-index: 2;
+        }
+        .main { margin-left: 220px; margin-top: 70px; padding: 36px 38px; }
+        .sidebar {
+            width: 220px; background: #fff; min-height: calc(100vh - 70px); position: fixed;
+            left: 0; top: 70px; bottom: 0; box-shadow: 2px 0 16px #0001; padding-top: 32px; z-index: 1;
+        }
+        .sidebar ul { list-style: none; padding: 0 0 0 18px; }
+        .sidebar ul li { margin-bottom: 18px; }
+        .sidebar ul li a {
+            text-decoration: none; color: #333; font-size: 16px; padding: 8px 18px;
+            display: block; border-radius: 6px; transition: background 0.2s;
+        }
+        .sidebar ul li a.active, .sidebar ul li a:hover { background: #e3edfa; color: #1565c0; }
+        .form-title { font-size: 1.8rem; font-weight: bold; color: #175fa2; margin-bottom: 28px; }
+        .form-create {
+            background: #fff; border-radius: 18px; box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+            padding: 34px 44px; max-width: 950px;
+        }
+        .form-row { display: flex; gap: 22px; margin-bottom: 20px; }
+        .form-group { flex: 1; display: flex; flex-direction: column; }
+        .form-group label { font-weight: 500; color: #253e66; margin-bottom: 6px; font-size: 15px; }
+        .form-group input, .form-group textarea, .form-group select {
+            border: 1.3px solid #dde2e6; border-radius: 7px; padding: 10px 12px;
+            font-size: 16px; background: #f9fbfd; transition: border 0.2s;
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            border: 1.5px solid #4098ff; outline: none;
+        }
+        textarea { min-height: 80px; resize: vertical; }
+        .actions { display: flex; justify-content: flex-end; gap: 18px; margin-top: 20px; }
+        .btn {
+            padding: 11px 32px; border: none; border-radius: 7px; font-size: 17px;
+            cursor: pointer; font-weight: 500; transition: background 0.15s;
+        }
+        .btn-primary { background: #1976ed; color: #fff; }
+        .btn-primary:hover { background: #0853a8; }
+        .btn-secondary { background: #eaf1fd; color: #237aff; }
+        .btn-secondary:hover { background: #c3dafc; }
+    </style>
+</head>
+<body>
+<div class="header"></div>
+<div class="sidebar">
+    <ul>
+        <li><a th:href="@{/dashboard}"><i></i> Dashboard</a></li>
+        <li><a th:href="@{/projects}" class="active"><i></i> Projects</a></li>
+        <li><a th:href="@{/tasks}"><i></i> Tasks</a></li>
+        <li><a th:href="@{/worklogs}"><i></i> Work Logs</a></li>
+        <li><a th:href="@{/list_employee}"><i></i> Employees</a></li>
+        <li><a th:href="@{/profile}"><i></i> Log Out</a></li>
+    </ul>
+</div>
+<div class="main">
+    <div class="form-title">Projects / Create Project</div>
+
+    <form class="form-create" th:action="@{/projects/create}" method="post" th:object="${projectRequest}">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="name">Project Name</label>
+                <input type="text" id="name" th:field="*{name}" required />
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="description">Project Description</label>
+                <textarea id="description" th:field="*{description}" required></textarea>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="startDate">Start Date</label>
+                <input type="date" id="startDate" th:field="*{startDate}" required />
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="endDate">End Date</label>
+                <input type="date" id="endDate" th:field="*{endDate}" required />
+            </div>
+        </div>
+
+        <div class="actions">
+            <button type="submit" class="btn btn-primary">Create</button>
+            <button type="reset" class="btn btn-secondary">Clear</button>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>

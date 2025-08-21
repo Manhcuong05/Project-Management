@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Employees Dashboard | Project Management</title>
+    <style>
+        /* CSS CHO LAYOUT CHUNG */
+        body { background: #f7faff; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; }
+        .header { width: 100%; height: 70px; background: #fff; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 0 36px; position: fixed; left: 0; top: 0; right: 0; z-index: 101; }
+        .logo-text { font-size: 26px; font-weight: bold; color: #175fa2; }
+        .sidebar { width: 220px; background: #fff; min-height: 100vh; position: fixed; left: 0; top: 70px; bottom: 0; box-shadow: 2px 0 16px rgba(0,0,0,0.05); padding-top: 32px; z-index: 100; }
+        .sidebar ul { list-style: none; padding: 0 18px; margin: 0; }
+        .sidebar ul li { margin-bottom: 18px; }
+        .sidebar ul li a { text-decoration: none; color: #333; font-size: 16px; padding: 8px 18px; display: block; border-radius: 6px; transition: background 0.2s; }
+        .sidebar ul li a.active, .sidebar ul li a:hover { background: #e3edfa; color: #1565c0; }
+        .main { margin-left: 220px; margin-top: 70px; padding: 36px 38px; }
+
+        /* ✅ CSS CHO THANH HÀNH ĐỘNG VÀ TÌM KIẾM ĐÃ ĐƯỢC CẬP NHẬT */
+        .action-bar {
+            display: grid;
+            grid-template-columns: 1fr auto; /* Chia cột cho tiêu đề và các nút */
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .dashboard-title { font-size: 2rem; font-weight: bold; color: #1d2746; }
+        .search-container { /* Thêm container cho search bar */
+            grid-column: 1 / -1; /* Trải dài toàn bộ chiều rộng grid */
+            margin-bottom: 12px;
+        }
+        .search-container input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .action-buttons { display: flex; gap: 15px; }
+        .btn-action { color: white; padding: 10px 20px; border-radius: 6px; font-size: 16px; text-decoration: none; display: inline-block; border: none; cursor: pointer; transition: all 0.2s ease; }
+        .btn-action:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .btn-create { background: #1e88e5; }
+        #deleteButton { background: #e53935; }
+        #deleteButton.active { background-color: #ffcdd2; color: #b71c1c; animation: blink 1.2s infinite; }
+        @keyframes blink { 50% { opacity: 0.6; } }
+
+        /* CSS khác giữ nguyên */
+        .alert { padding: 15px; margin-bottom: 20px; border-radius: 8px; font-size: 16px; animation: fadeIn 0.5s; grid-column: 1 / -1; }
+        .alert-success { color: #155724; background-color: #d4edda; border-color: #c3e6cb; }
+        .alert-danger { color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 28px; }
+        .employee-card { background: #fff; border-radius: 18px; box-shadow: 0 4px 20px #0001; padding: 24px; display: flex; flex-direction: column; position: relative; transition: all 0.2s ease; }
+        .employee-card:hover { transform: translateY(-5px); box-shadow: 0 6px 30px rgba(0, 0, 0, 0.1); }
+        .card-link { display: contents; text-decoration: none; color: inherit; }
+        .employee-card-content { display: flex; flex-direction: column; align-items: center; flex-grow: 1; }
+        .employee-card img { width: 90px; height: 90px; border-radius: 50%; margin-bottom: 15px; border: 3px solid #eee; object-fit: cover; }
+        .employee-name { font-size: 18px; font-weight: bold; color: #333; text-align: center; }
+        .employee-role { font-size: 14px; color: #777; text-align: center; margin-bottom: 15px;}
+        .employee-meta { font-size: 14px; color: #555; margin-top: 5px; width: 100%; text-align: left; }
+        .delete-form { display: none; margin-top: 15px; }
+        .delete-form button { width: 100%; background-color: #f44336; color: white; border: none; padding: 10px; font-size: 15px; border-radius: 6px; cursor: pointer; }
+        .main.delete-mode-active .employee-card .card-link { pointer-events: none; opacity: 0.5; }
+        .main.delete-mode-active .employee-card .delete-form { display: block; }
+        .main.delete-mode-active .employee-card:hover { background-color: #ffebee; box-shadow: 0 0 0 3px #f44336; }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="logo-text">AProjectO</div>
+</div>
+
+<div class="sidebar">
+    <ul>
+        <li><a th:href="@{/dashboard}">Dashboard</a></li>
+        <li><a th:href="@{/projects}">Projects</a></li>
+        <li><a th:href="@{/tasks}">Tasks</a></li>
+        <li><a th:href="@{/worklogs}">Work Logs</a></li>
+        <li><a th:href="@{/employees}" class="active">Employees</a></li>
+        <li><a th:href="@{/profile}"> log Out</a></li>
+    </ul>
+</div>
+
+<div class="main">
+    <div class="action-bar">
+        <div class="dashboard-title">Employees</div>
+        <div class="action-buttons" sec:authorize="hasRole('ADMIN')">
+            <a th:href="@{/employees/add}" class="btn-action btn-create">+ Create Employee</a>
+            <a href="javascript:void(0);" id="deleteButton" class="btn-action btn-delete-mode">Delete</a>
+        </div>
+    </div>
+
+    <div class="search-container">
+        <input type="text" id="searchInput" name="keyword" th:value="${keyword}" placeholder="Gõ để tìm kiếm nhân viên..." />
+    </div>
+
+    <div th:if="${successMessage}" class="alert alert-success">
+        <p th:text="${successMessage}"></p>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger">
+        <p th:text="${errorMessage}"></p>
+    </div>
+
+    <div class="dashboard-grid" id="employeeGrid" th:fragment="employee-grid">
+        <div th:if="${#lists.isEmpty(employees)}" style='grid-column: 1/-1; text-align:center;'>
+            Không có nhân viên nào khớp với từ khóa tìm kiếm.
+        </div>
+        <div class="employee-card" th:each="employee : ${employees}">
+            <a class="card-link" th:href="@{/employees/{id}(id=${employee.id})}">
+                <div class="employee-card-content">
+                    <img th:src="${employee.photoUrl ?: '/images/default-avatar.png'}" alt="Avatar"/>
+                    <div class="employee-name" th:text="${employee.firstName} + ' ' + ${employee.lastName}">Employee Name</div>
+                    <div class="employee-role" th:text="${employee.designation} ?: '(Chưa có chức vụ)'">Employee Role</div>
+                    <div class="employee-meta" th:text="'Email: ' + ${employee.email} ?: ''"></div>
+                    <div class="employee-meta" th:text="'Phone: ' + ${employee.phoneNumber} ?: ''"></div>
+                </div>
+            </a>
+            <form class="delete-form" th:action="@{/employees/{id}/delete(id=${employee.id})}" method="post" sec:authorize="hasRole('ADMIN')">
+                <button type="submit" class="delete-btn"
+                        th:data-employee-name="${employee.firstName} + ' ' + ${employee.lastName}">
+                    Delete
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const searchInput = document.getElementById('searchInput');
+    let employeeGrid = document.getElementById('employeeGrid');
+    let debounceTimer;
+
+    searchInput.addEventListener('input', function (e) {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            const keyword = e.target.value;
+            const url = new URL(window.location.origin + '/employees');
+            url.searchParams.set('keyword', keyword);
+
+            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(response => response.text())
+                .then(html => {
+                    employeeGrid.outerHTML = html;
+                    employeeGrid = document.getElementById('employeeGrid');
+                })
+                .catch(error => console.error('Error fetching search results:', error));
+        }, 300);
+    });
+
+    var deleteButton = document.querySelector("#deleteButton");
+    if(deleteButton) {
+        const mainContainer = document.querySelector('.main');
+        deleteButton.addEventListener('click', () => {
+            mainContainer.classList.toggle('delete-mode-active');
+            deleteButton.classList.toggle('active');
+        });
+    }
+</script>
+
+</body>
+</html>

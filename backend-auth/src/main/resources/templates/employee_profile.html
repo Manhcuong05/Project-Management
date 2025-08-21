@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Employee Profile | Project Management</title>
+    <meta charset="UTF-8"/>
+    <style>
+        body { background: #f7faff; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; }
+        .main { margin-left: 220px; margin-top: 70px; padding: 36px 38px; }
+        .sidebar { width: 220px; background: #fff; min-height: 100vh; position: fixed; left: 0; top: 70px; bottom: 0; box-shadow: 2px 0 16px #0001; padding-top: 32px; z-index: 1; }
+        .sidebar ul { list-style: none; padding: 0 18px; }
+        .sidebar ul li { margin-bottom: 18px; }
+        .sidebar ul li a { text-decoration: none; color: #333; font-size: 16px; padding: 8px 18px; display: block; border-radius: 6px; }
+        .sidebar ul li a.active, .sidebar ul li a:hover { background: #e3edfa; color: #1565c0; }
+        .profile-info { display: flex; gap: 40px; }
+        .profile-info .left { flex: 1; text-align: center; }
+        .profile-info .left img { width: 150px; height: 150px; border-radius: 50%; margin-bottom: 20px; object-fit: cover; }
+        .profile-info .left h2 { font-size: 22px; color: #333; margin: 5px 0; }
+        .profile-info .left p { font-size: 14px; color: #777; margin: 5px 0; }
+        .profile-info .right { flex: 2; }
+        .profile-info .right h3 { font-size: 18px; font-weight: bold; color: #18376d; margin-bottom: 20px; }
+        .profile-info .right .form-group { margin-bottom: 20px; }
+        .profile-info .right label { display: block; margin-bottom: 5px; font-weight: 500;}
+        .profile-info .right input, .profile-info .right select { width: 100%; padding: 10px; font-size: 16px; border-radius: 6px; border: 1px solid #ccc; box-sizing: border-box; }
+        .profile-info .right button[type=submit] { padding: 12px 24px; background: #008cba; color: white; border: none; font-size: 16px; cursor: pointer; border-radius: 6px; }
+        .upload-photo-container { margin-top: 20px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px;}
+        .upload-photo-container button { padding: 8px 16px; background-color: #555; color: white; border-radius: 5px; cursor: pointer; border: none;}
+    </style>
+</head>
+<body>
+<div class="header"> </div>
+
+<div class="sidebar">
+    <ul>
+        <li><a th:href="@{/dashboard}">Dashboard</a></li>
+        <li><a th:href="@{/projects}">Projects</a></li>
+        <li><a th:href="@{/tasks}">Tasks</a></li>
+        <li><a th:href="@{/worklogs}">Work Logs</a></li>
+        <li><a th:href="@{/employees}" class="active">Employees</a></li>
+        <li><a th:href="@{/profile}">Profile</a></li>
+    </ul>
+</div>
+
+<div class="main">
+    <div class="dashboard-title">Employee Profile</div>
+    <div class="profile-info">
+        <div class="left" th:if="${employee}">
+            <img id="photo-preview" th:src="${employee.photoUrl ?: '/images/default-avatar.png'}" alt="User Profile"/>
+            <h2 th:text="${employee.firstName} + ' ' + ${employee.lastName}">Employee Name</h2>
+            <p th:text="${employee.designation} ?: 'Not Assigned'">Designation</p>
+            <p th:text="${employee.department} ?: 'Not Assigned'">Department</p>
+        </div>
+
+        <div class="right" sec:authorize="hasRole('ADMIN')">
+            <h3>Edit Profile</h3>
+            <form th:action="@{/employees/{id}/edit(id=${employee.id})}" th:object="${employeeRequest}" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="first-name">First Name</label>
+                    <input type="text" id="first-name" th:field="*{firstName}" required />
+                </div>
+                <div class="form-group">
+                    <label for="last-name">Last Name</label>
+                    <input type="text" id="last-name" th:field="*{lastName}" required />
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" th:field="*{email}" required />
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="text" id="phone" th:field="*{phoneNumber}" required />
+                </div>
+                <div class="form-group">
+                    <label for="designation">Designation</label>
+                    <select id="designation" th:field="*{designation}">
+                        <option value="UI Intern">UI Intern</option>
+                        <option value="UI Developer">UI Developer</option>
+                    </select>
+                </div>
+
+                <div class="form-group upload-photo-container">
+                    <label>Profile Photo</label>
+                    <input type="file" id="photo-upload" name="photo" accept="image/*" style="display: none;" />
+                    <button type="button" id="upload-button">Choose Photo</button>
+                </div>
+
+                <div class="form-footer">
+                    <button type="submit">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const uploadButton = document.getElementById('upload-button');
+    const photoUploadInput = document.getElementById('photo-upload');
+    const photoPreview = document.getElementById('photo-preview');
+
+    if (uploadButton) {
+        uploadButton.addEventListener('click', function () {
+            photoUploadInput.click();
+        });
+
+        photoUploadInput.addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                photoPreview.src = URL.createObjectURL(file);
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

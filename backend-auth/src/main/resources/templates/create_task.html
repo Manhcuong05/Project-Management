@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Create Task | AProjectO</title>
+    <style>
+        body { background: #f5f9ff; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; }
+        .header {
+            width: 100vw; height: 68px; background: #fff; display: flex; align-items: center;
+            box-shadow: 0 2px 10px #0001; padding: 0 34px 0 26px; position: fixed;
+            left: 0; top: 0; right: 0; z-index: 2;
+        }
+        .main { margin-left: 220px; margin-top: 68px; padding: 44px; }
+        .sidebar {
+            width: 220px; background: #fff; min-height: calc(100vh - 68px); position: fixed;
+            left: 0; top: 68px; bottom: 0; box-shadow: 2px 0 16px #0001; padding-top: 32px; z-index: 1;
+        }
+        .sidebar ul { list-style: none; padding: 0 0 0 18px; }
+        .sidebar ul li { margin-bottom: 17px; }
+        .sidebar ul li a {
+            text-decoration: none; color: #333; font-size: 16px; padding: 8px 18px;
+            display: flex; align-items: center; border-radius: 7px; transition: background 0.2s; gap: 12px;
+        }
+        .sidebar ul li a.active, .sidebar ul li a:hover { background: #e3edfa; color: #1565c0; }
+        .page-title { font-size: 1.45rem; color: #6173a3; font-weight: bold; margin-bottom: 30px; letter-spacing: 0.2px; }
+        .form-task {
+            background: #fff; border-radius: 18px; box-shadow: 0 6px 32px #e5edfa;
+            padding: 36px 38px; max-width: 1100px;
+        }
+        .form-row { display: flex; gap: 24px; margin-bottom: 20px; }
+        .form-group { flex: 1; display: flex; flex-direction: column; }
+        .form-group label { font-weight: 600; color: #223460; margin-bottom: 6px; font-size: 16px; }
+        .form-group input, .form-group textarea, .form-group select {
+            border: 1.4px solid #e2e7ee; border-radius: 8px; padding: 10px 13px;
+            font-size: 16px; background: #f7fafd; transition: border 0.2s;
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            border: 1.7px solid #4098ff; outline: none;
+        }
+        textarea { min-height: 66px; resize: vertical; }
+        .form-actions { display: flex; justify-content: flex-end; gap: 18px; margin-top: 38px; }
+        .btn {
+            padding: 11px 32px; border: none; border-radius: 7px; font-size: 17px;
+            cursor: pointer; font-weight: 500; transition: background 0.15s;
+        }
+        .btn-create { background: #1976ed; color: #fff; }
+        .btn-create:hover { background: #0853a8; }
+        .btn-secondary { background: #eaf1fd; color: #237aff; }
+        .btn-secondary:hover { background: #c3dafc; }
+    </style>
+</head>
+<body>
+<div class="header"></div>
+<div class="sidebar">
+    <ul>
+        <li><a th:href="@{/dashboard}"><i></i> Dashboard</a></li>
+        <li><a th:href="@{/projects}"><i></i> Projects</a></li>
+        <li><a th:href="@{/tasks}" class="active"><i></i> Tasks</a></li>
+        <li><a th:href="@{/worklogs}"><i></i> Work Logs</a></li>
+        <li><a th:href="@{/list_employee}"><i></i> Employees</a></li>
+        <li><a th:href="@{/profile}"><i></i> Log Out</a></li>
+    </ul>
+</div>
+
+<div class="main">
+    <div class="page-title">Tasks / Create Task</div>
+
+    <form class="form-task" th:action="@{/projects/{pid}/tasks/create(pid=${projectId})}" th:object="${taskRequest}" method="post">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="taskTitle">Task Title</label>
+                <input type="text" id="taskTitle" th:field="*{name}" required />
+            </div>
+            <div class="form-group">
+                <label for="taskType">Task Type</label>
+                <input type="text" id="taskType" th:field="*{type}" />
+            </div>
+            <div class="form-group">
+                <label for="taskStartDate">Task Start Date</label>
+                <input type="date" id="taskStartDate" th:field="*{startDate}" required/>
+            </div>
+            <div class="form-group">
+                <label for="taskEndDate">Task End Date</label>
+                <input type="date" id="taskEndDate" th:field="*{endDate}" required/>
+            </div>
+        </div>
+        <div class="form-group" style="margin-bottom:18px;">
+            <label for="taskDescription">Task Description</label>
+            <textarea id="taskDescription" th:field="*{description}"></textarea>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="assignTo">Assign to</label>
+                <select id="assignTo" th:field="*{assigneeId}">
+                    <option value="">-- Chọn nhân viên --</option>
+                    <option th:each="emp : ${allEmployees}"
+                            th:value="${emp.id}"
+                            th:text="${emp.firstName} + ' ' + ${emp.lastName}">
+                    </option>
+                </select>
+            </div>
+        </div>
+
+        <input type="hidden" th:field="*{projectId}" />
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-create">Create</button>
+            <button type="reset" class="btn btn-secondary">Clear</button>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>

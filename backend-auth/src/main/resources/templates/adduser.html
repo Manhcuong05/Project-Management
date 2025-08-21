@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Add Employee | Admin</title>
+    <meta charset="UTF-8"/>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f7faff;
+            margin: 0;
+        }
+        .header {
+            width: 100%;
+            height: 70px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 10px #0001;
+            padding: 0 36px;
+            position: fixed;
+            left: 0; top: 0; right: 0;
+        }
+        .header .logo-text {
+            font-size: 26px;
+            font-weight: bold;
+            color: #175fa2;
+        }
+        .sidebar {
+            width: 220px;
+            background: #fff;
+            min-height: calc(100vh - 70px);
+            position: fixed;
+            left: 0; top: 70px; bottom: 0;
+            padding-top: 32px;
+            box-shadow: 2px 0 16px #0001;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0 0 0 18px;
+        }
+        .sidebar ul li {
+            margin-bottom: 18px;
+        }
+        .sidebar ul li a {
+            text-decoration: none;
+            color: #333;
+            font-size: 16px;
+            padding: 8px 18px;
+            display: block;
+            border-radius: 6px;
+        }
+        .sidebar ul li a.active, .sidebar ul li a:hover {
+            background: #e3edfa;
+            color: #1565c0;
+        }
+        .main {
+            margin-left: 220px;
+            margin-top: 70px;
+            padding: 36px 38px;
+        }
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 4px 16px #0001;
+            border-radius: 8px;
+            width: 80%;
+            margin: 0 auto;
+        }
+        .form-container input, .form-container select {
+            margin-bottom: 20px;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+        .form-container label {
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+        .upload-photo {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+            justify-content: flex-start;
+        }
+        .upload-photo img {
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+        }
+        .save-btn {
+            padding: 12px 20px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .save-btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="logo-text">AProjectO</div>
+</div>
+
+<div class="sidebar">
+    <ul>
+        <li><a th:href="@{/dashboard}"><i></i> Dashboard</a></li>
+        <li><a th:href="@{/projects}"><i></i> Projects</a></li>
+        <li><a th:href="@{/tasks}"><i></i> Tasks</a></li>
+        <li><a th:href="@{/worklogs}"><i></i> Work Logs</a></li>
+        <li><a th:href="@{/list_employee}" class="active"><i></i> Employees</a></li>
+        <li><a th:href="@{/profile}"><i></i> Log Out</a></li>
+    </ul>
+</div>
+
+<div class="main">
+    <div class="form-container">
+        <h2>Add Employee</h2>
+
+        <form id="addEmployeeForm" th:action="@{/employees/add}" th:object="${employeeRequest}" method="post" enctype="multipart/form-data">
+            <div>
+                <label for="firstName">First Name</label>
+                <input type="text" id="firstName" th:field="*{firstName}" placeholder="Enter First Name" required />
+            </div>
+            <div>
+                <label for="lastName">Last Name</label>
+                <input type="text" id="lastName" th:field="*{lastName}" placeholder="Enter Last Name" required />
+            </div>
+            <div>
+                <label for="phoneNumber">Phone No.</label>
+                <input type="text" id="phoneNumber" th:field="*{phoneNumber}"
+                       pattern="^0\d{9}$" maxlength="10"
+                       title="Số điện thoại phải bắt đầu từ số 0" required />
+            </div>
+
+            <div>
+                <label for="email">Email</label>
+                <input type="email" id="email" th:field="*{email}" placeholder="Enter Email" required />
+            </div>
+
+            <div>
+                <label for="createdDate">Created Date</label>
+                <input type="date" id="createdDate" th:field="*{createdDate}" required />
+            </div>
+            <div>
+                <label for="designation">Designation</label>
+                <select id="designation" th:field="*{designation}" required>
+                    <option value="UI Intern">UI Intern</option>
+                    <option value="UI Developer">UI Developer</option>
+                </select>
+            </div>
+            <div>
+                <label for="department">Department</label>
+                <select id="department" th:field="*{department}" required>
+                    <option value="PDT">PDT</option>
+                    <option value="HR">HR</option>
+                </select>
+            </div>
+            <div class="upload-photo">
+                <img id="photo-preview" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Profile Image" />
+
+                <input type="file" id="photo-upload" name="photo" accept="image/*" style="display: none;" />
+
+                <button type="button" id="upload-button">Upload Photo</button>
+            </div>
+
+            <button type="submit" class="save-btn">Save</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Lắng nghe sự kiện khi nút "Upload Photo" được nhấn
+    document.getElementById('upload-button').addEventListener('click', function() {
+        // Khi nút được nhấn, ta kích hoạt sự kiện click của thẻ input bị ẩn
+        document.getElementById('photo-upload').click();
+    });
+
+    // Lắng nghe sự kiện khi người dùng đã chọn xong một file
+    document.getElementById('photo-upload').addEventListener('change', function(event) {
+        // Lấy file mà người dùng đã chọn
+        const file = event.target.files[0];
+
+        // Nếu có file được chọn
+        if (file) {
+            // Lấy thẻ img xem trước
+            const preview = document.getElementById('photo-preview');
+            // Tạo một URL tạm thời cho file ảnh và gán nó vào ảnh xem trước
+            preview.src = URL.createObjectURL(file);
+        }
+    });
+</script>
+
+</body>
+</html>
+
+</body>
+</html>

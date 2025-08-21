@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Projects | Project Management</title>
+    <style>
+        body { background: #f7faff; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; }
+
+        .header {
+            width: 100vw; height: 70px; background: #fff; display: flex; align-items: center;
+            box-shadow: 0 2px 10px #0001; padding: 0 36px 0 30px; position: fixed;
+            left: 0; top: 0; right: 0; z-index: 2;
+        }
+        .main { margin-left: 220px; margin-top: 70px; padding: 36px 38px; }
+        .sidebar {
+            width: 220px; background: #fff; min-height: calc(100vh - 70px); position: fixed;
+            left: 0; top: 70px; bottom: 0; box-shadow: 2px 0 16px #0001; padding-top: 32px; z-index: 1;
+        }
+        .sidebar ul { list-style: none; padding: 0 0 0 18px; }
+        .sidebar ul li { margin-bottom: 18px; }
+        .sidebar ul li a { text-decoration: none; color: #333; font-size: 16px; padding: 8px 18px; display: block; border-radius: 6px; }
+        .sidebar ul li a.active, .sidebar ul li a:hover { background: #e3edfa; color: #1565c0; }
+
+        .dashboard-title { font-size: 2rem; font-weight: bold; color: #1d2746; margin-bottom: 32px; }
+        .action-buttons { margin-bottom: 30px; display: flex; gap: 15px; }
+        .create-button {
+            background: #008cba; color: white; padding: 12px 24px; border-radius: 6px;
+            font-size: 16px; text-decoration: none; display: inline-block; border: none; cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .create-button:hover { background: #0079a1; }
+        #deleteButton { background: #e53935; }
+        #deleteButton:hover { background: #c62828; }
+        #deleteButton.active {
+            background-color: #ffcdd2;
+            color: #b71c1c;
+            animation: blink 1.2s infinite;
+        }
+        @keyframes blink { 50% { opacity: 0.6; } }
+
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 28px; margin-bottom: 30px; }
+        .dashboard-card {
+            background: #fff; border-radius: 18px; box-shadow: 0 4px 20px #0001; padding: 24px 26px;
+            display: flex; flex-direction: column; position: relative; text-decoration: none; color: inherit;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .dashboard-card:hover { transform: translateY(-5px); box-shadow: 0 6px 30px rgba(0, 0, 0, 0.1); }
+        .section-title { font-size: 20px; font-weight: bold; color: #18376d; margin-bottom: 8px; }
+        .section-description { font-size: 14px; color: #444; margin-bottom: 6px; }
+        .creator-name { font-size: 13px; color: #888; font-style: italic; margin-bottom: 8px; }
+        .section-badge {
+            position: absolute; top: 20px; right: 20px; background: #e3f2fd; color: #1565c0;
+            border-radius: 8px; padding: 6px 16px; font-size: 12px; font-weight: bold;
+        }
+        .delete-form button {
+            width: 100%; margin-top: auto; background-color: #f44336; color: white;
+            border: none; padding: 10px; font-size: 15px; border-radius: 6px; cursor: pointer;
+        }
+
+        .dashboard-card .card-link { display: contents; }
+        .dashboard-card .delete-form { display: none; }
+
+        .main.delete-mode-active .dashboard-card .card-link {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+        .main.delete-mode-active .dashboard-card .delete-form {
+            display: block;
+        }
+        .main.delete-mode-active .dashboard-card {
+            cursor: pointer;
+        }
+        .main.delete-mode-active .dashboard-card:hover {
+            background-color: #ffebee;
+            box-shadow: 0 0 0 3px #f44336;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header"></div>
+
+<div class="sidebar">
+    <ul>
+        <li><a th:href="@{/dashboard}"><i></i> Dashboard</a></li>
+        <li><a th:href="@{/projects}" class="active"><i></i> Projects</a></li>
+        <li><a th:href="@{/tasks}"><i></i> Tasks</a></li>
+        <li><a th:href="@{/worklogs}"><i></i> Work Logs</a></li>
+        <li><a th:href="@{/list_employee}"><i></i> Employees</a></li>
+        <li><a th:href="@{/profile}"><i></i> Log Out</a></li>
+    </ul>
+</div>
+
+<div class="main">
+    <div class="dashboard-title">Projects</div>
+
+    <div class="action-buttons" sec:authorize="hasRole('ADMIN')">
+        <a th:href="@{/projects/create}" class="create-button">Create Project</a>
+        <a href="javascript:void(0);" id="deleteButton" class="create-button">Delete</a>
+    </div>
+
+    <div class="dashboard-grid">
+        <div th:each="project : ${projects}" class="dashboard-card">
+            <a class="card-link" th:href="@{/projects/{id}/tasks(id=${project.id})}">
+                <div class="section-title" th:text="${project.name}">Project Name</div>
+                <div class="section-description" th:text="${project.description}">Project Description</div>
+                <div class="creator-name" th:text="'Người tạo: ' + ${project.creatorName}">Người tạo: Unknown</div>
+                <span class="section-badge" th:text="${project.status}">No status</span>
+            </a>
+            <form class="delete-form" th:action="@{/projects/{id}/delete(id=${project.id})}" method="post">
+                <button type="submit" class="create-button delete-button"
+                        th:onclick="'return confirm(\'Bạn có chắc chắn muốn xóa project \\'' + ${project.name} +  không?\');'">
+                    Delete Project
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script sec:authorize="hasRole('ADMIN')">
+    const deleteButton = document.getElementById('deleteButton');
+    const mainContainer = document.querySelector('.main');
+
+    deleteButton.addEventListener('click', () => {
+        // Thêm hoặc xóa class 'delete-mode-active' trên container chính
+        mainContainer.classList.toggle('delete-mode-active');
+        // Thêm hoặc xóa class 'active' trên nút Delete để tạo hiệu ứng
+        deleteButton.classList.toggle('active');
+    });
+</script>
+
+</body>
+</html>

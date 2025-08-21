@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>User Profile</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f4f8;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .profile-card {
+            background-color: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            text-align: center;
+            width: 350px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid #e3edfa;
+        }
+
+        .profile-name {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1d2746;
+            margin: 0;
+        }
+
+        .logout-form {
+            width: 100%;
+        }
+
+        .btn-logout {
+            width: 100%;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            background-color: #e53935;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(229, 57, 53, 0.4);
+        }
+
+        .btn-logout:hover {
+            background-color: #c62828;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(229, 57, 53, 0.6);
+        }
+
+        .btn-logout:active {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(229, 57, 53, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+<div class="profile-card">
+
+    <img th:src="${employeeProfile.photoUrl ?: '/images/default-avatar.png'}" alt="User Avatar" class="profile-avatar"/>
+
+    <h2 class="profile-name" th:text="${employeeProfile.firstName} + ' ' + ${employeeProfile.lastName}">User Name</h2>
+
+    <form class="logout-form" th:action="@{/logout}" method="post">
+        <button type="submit" class="btn-logout">Đăng xuất</button>
+    </form>
+</div>
+
+</body>
+</html>
